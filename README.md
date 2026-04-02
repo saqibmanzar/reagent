@@ -65,7 +65,7 @@ POST /chat
 ## Project Structure
 
 ```
-llm_api/
+reagent/
 ├── main.py                   # FastAPI app, /chat endpoint
 ├── agent/
 │   ├── agent_loop.py         # ReAct loop with Langfuse instrumentation
@@ -100,7 +100,7 @@ llm_api/
 ### 1. Clone & install dependencies
 
 ```bash
-git clone https://github.com/your-username/llm-api.git
+git clone https://github.com/saqibmanzar/reagent.git
 cd llm-api
 uv sync          # or: pip install -r requirements.txt
 ```
