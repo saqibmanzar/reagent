@@ -13,8 +13,8 @@ POST /chat
     │
     ▼
 ┌─────────────────────────────────────────────────────────┐
-│                    FastAPI (main.py)                     │
-│         Langfuse trace: chat_request                     │
+│                    FastAPI (main.py)                    │
+│         Langfuse trace: chat_request                    │
 └────────────────────────┬────────────────────────────────┘
                          │
                          ▼
@@ -26,10 +26,10 @@ POST /chat
 └────────────────────────┬────────────────────────────────┘
                          │
                          ▼
-┌─────────────────────────────────────────────────────────┐
-│            ReAct Loop  (agent_loop.py)                  │
-│            MAX_STEPS = 6                                │
-│                                                         │
+┌────────────────────────────────────────────────────────┐
+│            ReAct Loop  (agent_loop.py)                 │
+│            MAX_STEPS = 6                               │
+│                                                        │
 │   ┌─────────────────────────────────────────────────┐  │
 │   │  Langfuse span: agent_step                      │  │
 │   │                                                 │  │
@@ -47,7 +47,7 @@ POST /chat
 │   │  3b. final_answer  (span)                       │  │
 │   │       └─► update_session → return answer        │  │
 │   └─────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────┘
                          │
                          ▼
               Response: { status, response }
@@ -77,6 +77,7 @@ reagent/
 │   └── memory.py             # In-memory session + history manager
 ├── tools/
 │   ├── calculator.py         # Calculator tool (sympy-based)
+|   ├── python_executor.py    # Python code execution tool (subprocess-based)
 │   ├── tool_router.py        # Routes tool_call → function
 │   ├── tools_registry.py     # Registers available tools
 │   └── tools_schema.py       # ToolSchema Pydantic model
@@ -195,9 +196,10 @@ print(response.json())
 
 ## Available Tools
 
-| Tool         | Description                              | Input                        |
-|--------------|------------------------------------------|------------------------------|
-| `calculator` | Arithmetic expression evaluator (sympy)  | `{ "expression": "string" }` |
+| Tool              | Description                                                        | Input                        |
+|-------------------|--------------------------------------------------------------------|------------------------------|
+| `calculator`      | Arithmetic expression evaluator (sympy)                            | `{ "expression": "string" }` |
+| `python_executor` | Executes Python code and returns output. Always use print().       | `{ "code": "string" }`       |
 
 ### Adding a new tool
 
@@ -251,7 +253,7 @@ Open your Langfuse dashboard to inspect token usage, latency per step, tool inpu
 
 ## Roadmap
 
-- [ ] Python sandbox code execution tool
+- [x] Python sandbox code execution tool
 - [ ] File editor tool (read / write / patch)
 - [ ] LangGraph integration
 - [ ] RAGAS evaluation pipeline
@@ -261,11 +263,12 @@ Open your Langfuse dashboard to inspect token usage, latency per step, tool inpu
 
 ## Tech Stack
 
-| Layer          | Technology                  |
-|----------------|-----------------------------|
-| Runtime        | Python 3.11, FastAPI, uv    |
-| LLM inference  | Ollama (`qwen2.5:7b`)       |
-| Agent pattern  | ReAct (from scratch)        |
-| Observability  | Langfuse                    |
-| Validation     | Pydantic v2                 |
-| Math tools     | sympy                       |
+| Layer          | Technology                        |
+|----------------|-----------------------------------|
+| Runtime        | Python 3.11, FastAPI, uv          |
+| LLM inference  | Ollama (`qwen2.5:7b`)             |
+| Agent pattern  | ReAct (from scratch)              |
+| Observability  | Langfuse                          |
+| Validation     | Pydantic v2                       |
+| Math tools     | sympy                             |
+| Code execution | subprocess (local), E2B (planned) |
