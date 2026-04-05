@@ -16,7 +16,7 @@ class ToolCall(BaseModel):
 class FinalAnswer(BaseModel):
     type: ResponseType
     final_answer: Any
-    explanation: str
+    explanation: str | None = None
  
 
 class ResponseError(BaseModel):
