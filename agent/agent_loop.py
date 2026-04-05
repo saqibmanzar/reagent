@@ -56,6 +56,7 @@ async def react_loop(id, model, message, system=None, params=None):
                     error_span.update(output={
                         "error": parsed_response.error_message
                     })
+                langfuse.flush()
                 return parsed_response
 
             elif parsed_response.type == "tool_call":
@@ -74,9 +75,11 @@ async def react_loop(id, model, message, system=None, params=None):
                 ) as span:
                     try:
                         result = execute_tool(tool, arguments)
+                        is_error = isinstance(result, str) and result.startswith("Code execution failed")
+
                         span.update(output={
                             "result": str(result),
-                            "status": "success"
+                            "status": "tool_error" if is_error else "success"
                         })
                     except Exception as e:
                         span.update(output={
@@ -89,7 +92,14 @@ async def react_loop(id, model, message, system=None, params=None):
                             "raw_output": raw_output
                         }
 
-                tool_message = f"Tool: {tool}\nArguments: {arguments}\nResult: {result}"
+                if isinstance(result, str) and result.startswith("Code execution failed"):
+                    tool_message = (
+                        f"Tool: {tool}\nArguments: {arguments}\nResult: {result}\n"
+                        f"Instruction: The code failed. Carefully read the error above, "
+                        f"identify the exact line causing it, fix only that issue, and retry with corrected code."
+                    )
+                else:
+                    tool_message = f"Tool: {tool}\nArguments: {arguments}\nResult: {result}"
 
                 history_message.append({
                     "role": "tool",

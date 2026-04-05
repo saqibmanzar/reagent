@@ -3,7 +3,7 @@ from tools.tools_registry import available_tools
 def build_tool_prompt():
     tool_prompt: str = 'You have access to the following tools that can help you solve tasks.: \n'
     for tool_name, tool_data in available_tools.items():
-        tool_prompt += f"Tool: " + str(tool_data.name) + '\n'
+        tool_prompt += f"Tool: " + str(tool_name) + '\n'
         tool_prompt += "Description: " + str(tool_data.description) + '\n\n'
         tool_prompt += "Arguments: \n"
         tool_prompt += "{\n" 
@@ -22,6 +22,8 @@ def build_tool_prompt():
         for req_arg in required:
             tool_prompt += f"- {req_arg}\n"
 
+        tool_prompt += "\n\n"
+
     tool_prompt += """\n
 You are an agent that performs exactly one action per step:
 
@@ -38,6 +40,8 @@ Rules:
 - Use only provided tools
 - Do NOT guess tool arguments
 - Use tools when required (e.g., calculations)
+- Always end code with print() to output the final result
+- If a tool returns a result starting with "Code execution failed", fix the code and retry. Never give a final answer based on a failed tool call.
 
 Formats:
 
